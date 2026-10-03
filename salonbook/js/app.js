@@ -112,6 +112,50 @@ function requireAuth() {
   return true;
 }
 
+// ---------------- Salon details (edit these) ----------------
+const SALON = {
+  phone: '+255 700 000 000',
+  whatsapp: '255700000000',
+  address: 'Dar es Salaam, Tanzania',
+  hours: [
+    ['Mon – Fri', '9:00 – 20:00'],
+    ['Saturday', '8:00 – 21:00'],
+    ['Sunday', '10:00 – 18:00'],
+  ],
+};
+
+// ---------------- Icons & image helpers ----------------
+const ICONS = {
+  scissors: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="36" r="6"/><path d="M17 15l24 21M17 33L41 12"/></svg>',
+  massage: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 30c0-9 6-16 14-16s14 7 14 16"/><path d="M14 30v6M22 32v6M30 32v6M38 30v6"/><path d="M24 6v4M14 9l2 3M34 9l-2 3"/></svg>',
+  razor: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="14" width="30" height="8" rx="2"/><path d="M36 18h6M10 22v8M18 22v8M26 22v8M6 36h36"/></svg>',
+  drop: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6c8 10 12 16 12 22a12 12 0 0 1-24 0c0-6 4-12 12-22z"/><path d="M18 30a6 6 0 0 0 6 6"/></svg>',
+  comb: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="10" rx="2"/><path d="M10 22v12M16 22v12M22 22v12M28 22v12M34 22v12M40 22v12"/></svg>',
+  clock: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="17"/><path d="M24 14v10l7 5"/></svg>',
+  star: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6l5.5 11.5 12.5 1.7-9.1 8.8 2.2 12.5L24 34.6 12.9 40.5l2.2-12.5L6 19.2l12.5-1.7z"/></svg>',
+  phone: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6h8l3 10-5 3a24 24 0 0 0 11 11l3-5 10 3v8a4 4 0 0 1-4 4A34 34 0 0 1 8 10a4 4 0 0 1 4-4z"/></svg>',
+  pin: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 44S9 30 9 19a15 15 0 0 1 30 0c0 11-15 25-15 25z"/><circle cx="24" cy="19" r="5"/></svg>',
+};
+
+function iconFor(serviceName) {
+  const n = (serviceName || '').toLowerCase();
+  if (n.includes('massage')) return ICONS.massage;
+  if (n.includes('beard') || n.includes('shave')) return ICONS.razor;
+  if (n.includes('dye') || n.includes('color') || n.includes('colour')) return ICONS.drop;
+  if (n.includes('hair') || n.includes('cut')) return ICONS.scissors;
+  return ICONS.comb;
+}
+
+// Photo with graceful fallback: drop real photos in /images and they appear
+// automatically. If a file is missing, a styled placeholder shows instead.
+function photo(src, alt, icon = ICONS.scissors, cls = '') {
+  return `<div class="ph ${cls}">
+    <span class="ph-icon">${icon}</span>
+    <img src="${src}" alt="${escapeHtml(alt)}" loading="lazy"
+         onerror="this.remove()" onload="this.parentElement.classList.add('has-img')">
+  </div>`;
+}
+
 // ---------------- View: Services (home) ----------------
 async function viewServices() {
   if (!servicesCache.length) {
@@ -121,27 +165,71 @@ async function viewServices() {
   }
 
   appEl.innerHTML = `
-    <section class="hero">
-      <div>
-        <h1>SHARP CUTS.<br>NO SHORTCUTS.</h1>
-        <p>Faders Touch is Dar es Salaam's appointment-first men's salon &mdash; fresh fades, clean beard lines, no waiting around.</p>
-        <div style="margin-top:18px">
+    <section class="hero2">
+      <div class="hero2-copy">
+        <span class="eyebrow">Men's Salon &middot; Dar es Salaam</span>
+        <h1>SHARP CUTS.<br><em>NO SHORTCUTS.</em></h1>
+        <p>Appointment-first grooming. Fresh fades, clean beard lines and a proper head massage &mdash; without the waiting around.</p>
+        <div class="hero2-cta">
           <a class="btn" href="#/book">Book an appointment</a>
+          <a class="btn secondary" href="#services">See services</a>
         </div>
+        <ul class="hero2-stats">
+          <li><strong>${servicesCache.length}</strong><span>Signature services</span></li>
+          <li><strong>7 days</strong><span>Open every week</span></li>
+          <li><strong>2 min</strong><span>To book online</span></li>
+        </ul>
       </div>
-      <div class="stripe" aria-hidden="true"></div>
+      <div class="hero2-art">
+        ${photo('images/hero.jpg', 'Barber giving a fade haircut', ICONS.scissors, 'hero-ph')}
+        <div class="pole-tag" aria-hidden="true"></div>
+      </div>
     </section>
 
-    <h2 class="section-title">Our Services</h2>
-    <div class="service-grid">
+    <section class="features">
+      <div><span class="f-ico">${ICONS.clock}</span><h3>On time</h3><p>Book a slot and we hold it for you.</p></div>
+      <div><span class="f-ico">${ICONS.razor}</span><h3>Clean tools</h3><p>Sanitised clippers and fresh blades.</p></div>
+      <div><span class="f-ico">${ICONS.star}</span><h3>Skilled barbers</h3><p>Pick your stylist or let us match you.</p></div>
+    </section>
+
+    <h2 class="section-title" id="services">Our Services</h2>
+    <div class="service-showcase">
       ${servicesCache.map(s => `
-        <div class="card">
-          <h3>${escapeHtml(s.name)}</h3>
-          <p class="desc" style="color:var(--cream-dim)">${escapeHtml(s.description || '')}</p>
-          <p class="price" style="color:var(--brass-bright);font-weight:600;margin-top:10px">${formatTZS(s.price)}</p>
-        </div>
+        <article class="svc">
+          ${photo(`images/service-${s.id}.jpg`, s.name, iconFor(s.name), 'svc-ph')}
+          <div class="svc-body">
+            <div class="svc-top"><h3>${escapeHtml(s.name)}</h3><span class="svc-price">${formatTZS(s.price)}</span></div>
+            <p>${escapeHtml(s.description || '')}</p>
+            <a href="#/book">Book this &rarr;</a>
+          </div>
+        </article>
       `).join('')}
     </div>
+
+    <h2 class="section-title">The Shop</h2>
+    <div class="gallery">
+      ${[1,2,3,4,5,6].map(i => photo(`images/gallery-${i}.jpg`, 'Faders Touch salon', i % 2 ? ICONS.comb : ICONS.scissors, 'g-ph g' + i)).join('')}
+    </div>
+
+    <section class="visit">
+      <div class="visit-card">
+        <h2>Visit Us</h2>
+        <p class="v-row"><span class="v-ico">${ICONS.pin}</span>${escapeHtml(SALON.address)}</p>
+        <p class="v-row"><span class="v-ico">${ICONS.phone}</span><a href="tel:${SALON.phone.replace(/\s/g, '')}">${escapeHtml(SALON.phone)}</a></p>
+        <a class="btn wa" href="https://wa.me/${SALON.whatsapp}" target="_blank" rel="noopener">Chat on WhatsApp</a>
+      </div>
+      <div class="visit-card">
+        <h2>Opening Hours</h2>
+        <table class="hours">
+          ${SALON.hours.map(([d, h]) => `<tr><td>${d}</td><td>${h}</td></tr>`).join('')}
+        </table>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <h2>READY FOR A FRESH LOOK?</h2>
+      <a class="btn" href="#/book">Book now</a>
+    </section>
   `;
 }
 
@@ -256,6 +344,7 @@ async function viewBook() {
     <div class="service-grid" id="serviceGrid">
       ${servicesCache.map(s => `
         <div class="service-card" data-id="${s.id}" data-price="${s.price}" data-name="${escapeHtml(s.name)}">
+          <span class="svc-ico">${iconFor(s.name)}</span>
           <h3>${escapeHtml(s.name)}</h3>
           <p class="desc">${escapeHtml(s.description || '')}</p>
           <p class="price">${formatTZS(s.price)}</p>
